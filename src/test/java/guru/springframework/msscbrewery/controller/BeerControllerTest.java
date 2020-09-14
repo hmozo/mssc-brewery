@@ -65,7 +65,7 @@ public class BeerControllerTest {
     void handlePost() throws Exception {
         //given
         BeerDto beerDto= validBeer;
-        beerDto.setId(null);
+        //beerDto.setId(null);
         BeerDto savedDto= BeerDto.builder().id(UUID.randomUUID()).beerName("New beer").build();
         String beerDtoJson= objectMapper.writeValueAsString(beerDto);
         //String beerDtoJson= "";
@@ -74,8 +74,8 @@ public class BeerControllerTest {
 
         mockMvc.perform(post("/api/v1/beers/")
                     .contentType(MediaType.APPLICATION_JSON)
-                    .content(beerDtoJson));
-                //.andExpect(status().isCreated());
+                    .content(beerDtoJson))
+                .andExpect(status().isCreated());
 
 
 
