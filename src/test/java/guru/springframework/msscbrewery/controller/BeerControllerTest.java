@@ -3,7 +3,10 @@ package guru.springframework.msscbrewery.controller;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import guru.springframework.msscbrewery.service.BeerService;
 import guru.springframework.msscbrewery.web.model.BeerDto;
+import guru.springframework.msscbrewery.web.model.BeerStyleEnum;
+
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,14 +38,14 @@ public class BeerControllerTest {
     @Autowired
     ObjectMapper objectMapper;
 
-    static BeerDto validBeer;
+    BeerDto validBeer;
 
-    @BeforeAll
-    public static void setup(){
+    @BeforeEach
+    public void setup(){
         validBeer= BeerDto.builder()
                 .id(UUID.randomUUID())
                 .beerName("Beer1")
-                .beerStyle("PALE_ALE")
+                .beerStyle(BeerStyleEnum.ALE)
                 .upc(123456789012L)
                 .build();
     }
@@ -66,24 +69,30 @@ public class BeerControllerTest {
         //given
         BeerDto beerDto= validBeer;
         //beerDto.setId(null);
-        BeerDto savedDto= BeerDto.builder().id(UUID.randomUUID()).beerName("New beer").build();
+        BeerDto savedDto= BeerDto.builder()
+        		.id(UUID.randomUUID()).beerName("New beer").build();
         String beerDtoJson= objectMapper.writeValueAsString(beerDto);
         //String beerDtoJson= "";
 
-        given(beerService.saveNewBear(any())).willReturn(savedDto);
+        given(beerService.saveNewBeer(any())).willReturn(savedDto);
 
         mockMvc.perform(post("/api/v1/beers/")
                     .contentType(MediaType.APPLICATION_JSON)
                     .content(beerDtoJson))
                 .andExpect(status().isCreated());
 
-
-
-
-
     }
 
     @Test
-    void handleUpdate() {
+    void handleUpdate() throws Exception {
+    	BeerDto updatedBeer= validBeer;
+    	updatedBeer.setBeerName("updated beer");
+    	String updatedBeerJson= objectMapper.writeValueAsString(updatedBeer);
+    	
+    	mockMvc.perform(
+    			put("/api/v1/beers/" + validBeer.getId().toString())
+    			.contentType(MediaType.APPLICATION_JSON)
+    			.content(updatedBeerJson))
+    	.andExpect(status().isNoContent());
     }
 }
